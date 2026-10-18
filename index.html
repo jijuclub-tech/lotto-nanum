@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>로또 나눔 - 자발적 기부 선언</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: 'Noto Sans KR', system-ui, sans-serif;
+    background: #0f172a; color: #e2e8f0;
+    min-height: 100dvh; padding: 16px;
+    display: flex; flex-direction: column; align-items: center;
+  }
+  h1 { font-size: 28px; color: #38bdf8; text-align: center; margin: 12px 0; }
+  .card {
+    background: #1e293b; border-radius: 16px; padding: 20px;
+    width: 100%; max-width: 420px; box-shadow: 0 4px 20px rgba(0,0,0,0.4);
+    margin-bottom: 16px;
+  }
+  .pledge {
+    background: #0f766e; border: 2px solid #5eead4; border-radius: 12px;
+    padding: 16px; margin: 12px 0; font-size: 15px; line-height: 1.6;
+  }
+  .pledge label { display: flex; align-items: flex-start; gap: 10px; cursor: pointer; }
+  .pledge input { width: 20px; height: 20px; margin-top: 3px; }
+  button {
+    width: 100%; padding: 16px; font-size: 18px; font-weight: 700;
+    border: none; border-radius: 12px; margin: 8px 0; cursor: pointer;
+  }
+  .btn-free { background: #10b981; color: white; }
+  .btn-paid { background: #f59e0b; color: #111; }
+  .btn-gen { background: #3b82f6; color: white; }
+  .numbers {
+    display: flex; justify-content: center; gap: 8px; flex-wrap: wrap;
+    margin: 16px 0; min-height: 60px;
+  }
+  .ball {
+    width: 48px; height: 48px; border-radius: 50%; display: flex;
+    align-items: center; justify-content: center; font-weight: 700;
+    font-size: 18px; color: white; background: #ef4444;
+  }
+  .info { font-size: 14px; color: #94a3b8; text-align: center; margin-top: 8px; }
+  .points { font-size: 16px; color: #fbbf24; text-align: center; margin: 8px 0; }
+</style>
+</head>
+<body>
+  <h1>로또 나눔</h1>
+  <p style="text-align:center; margin-bottom:16px; color:#94a3b8;">자발적 나눔 기부 선언 · 무료 제공</p>
+
+  <div class="card">
+    <div class="pledge">
+      <label>
+        <input type="checkbox" id="pledgeCheck">
+        <span>
+          <strong>자발적 나눔 서약</strong><br>
+          1등 당첨금의 1%를 나누겠다고 서약합니다.<br>
+          나눜 금액은 프로그램 개선에 활용됩니다.<br>
+          <em>서약하신 분은 서비스 무료입니다.</em>
+        </span>
+      </label>
+    </div>
+
+    <div class="points" id="status">상태: 서약 전 (유료)</div>
+
+    <button class="btn-gen" id="genBtn" disabled>번호 생성하기</button>
+    <div class="numbers" id="numbers"></div>
+    <div class="info" id="costInfo">무작위 생성: 10원 + 포인트</div>
+  </div>
+
+  <div class="card">
+    <p style="font-size:14px; line-height:1.7; color:#cbd5e1;">
+      • 서약 체크 시: <strong>무료</strong>로 번호 생성<br>
+      • 서약 안 함: 생성당 <strong>10원 + 포인트</strong><br>
+      • 생성 번호는 1~45 중 6개 무작위 (중복 없음)<br>
+      • 실제 당첨 보장 없음. 재미/참고용
+    </p>
+  </div>
+
+<script>
+const pledgeCheck = document.getElementById('pledgeCheck');
+const genBtn = document.getElementById('genBtn');
+const numbersEl = document.getElementById('numbers');
+const statusEl = document.getElementById('status');
+const costInfo = document.getElementById('costInfo');
+let points = 100; // demo points
+
+function updateUI() {
+  const pledged = pledgeCheck.checked;
+  if (pledged) {
+    statusEl.textContent = '상태: 서약 완료 → 무료 이용';
+    statusEl.style.color = '#34d399';
+    costInfo.textContent = '서약자 무료 제공';
+    genBtn.disabled = false;
+    genBtn.className = 'btn-free';
+    genBtn.textContent = '무료로 번호 생성';
+  } else {
+    statusEl.textContent = `상태: 서약 전 (보유 포인트: ${points})`;
+    statusEl.style.color = '#fbbf24';
+    costInfo.textContent = '무작위 생성: 10원 + 1포인트';
+    genBtn.disabled = points < 1;
+    genBtn.className = 'btn-paid';
+    genBtn.textContent = points >= 1 ? '10원+포인트로 생성' : '포인트 부족';
+  }
+}
+
+pledgeCheck.addEventListener('change', updateUI);
+
+genBtn.addEventListener('click', () => {
+  const pledged = pledgeCheck.checked;
+  if (!pledged && points < 1) {
+    alert('포인트가 부족합니다.');
+    return;
+  }
+  if (!pledged) points -= 1;
+
+  const nums = new Set();
+  while (nums.size < 6) nums.add(Math.floor(Math.random() * 45) + 1);
+  const sorted = [...nums].sort((a,b) => a-b);
+
+  numbersEl.innerHTML = '';
+  sorted.forEach(n => {
+    const ball = document.createElement('div');
+    ball.className = 'ball';
+    ball.textContent = n;
+    numbersEl.appendChild(ball);
+  });
+
+  updateUI();
+});
+
+updateUI();
+</script>
+</body>
+</html>
